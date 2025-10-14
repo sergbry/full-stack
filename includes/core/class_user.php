@@ -134,7 +134,7 @@ class User {
 
 		// check required fields
 		if (!$first_name || !$last_name || !$email || !$phone) {
-			return ['html'=>'<div class="error">ERROR: Please fill all required fields!</div>']; // TODO: Типа ошибка
+			return ['html'=>'<div class="error">ERROR: Please fill all required fields!</div>']; // TODO: validation error message
 		}
 
 		// update
