@@ -1,0 +1,21 @@
+<table>
+    <tr>
+        <th>Plot, number</th>
+        <th>First name</th>
+        <th>Last Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Last login</th>
+        <th></th>
+    </tr>
+    {section name=i loop=$users}
+    <tr>
+        <td>{$users[i].plot_id}</td>
+        <td>{$users[i].first_name}</td>
+        <td>{$users[i].last_name}</td>
+        <td>{$users[i].phone}</td>
+        <td>{$users[i].email}</td>
+        <td>{$users[i].last_login}</td>
+    </tr>
+    {/section}
+</table>
