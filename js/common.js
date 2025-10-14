@@ -192,6 +192,18 @@ let common = {
 		});
 	},
 
+	user_delete: (user_id) => {
+		let data = {
+			user_id: user_id,
+			offset: global.offset
+		}
+		let location = {dpt: 'user', act: 'delete'};
+		request({location: location, data: data}, (result) => {
+			common.modal_hide();
+			html('table', result.html);
+		});
+	}
+
 }
 
 add_event(document, 'DOMContentLoaded', common.init);

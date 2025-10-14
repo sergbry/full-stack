@@ -170,4 +170,14 @@ class User {
 		return self::users_fetch(['offset' => $offset]);
 	}
 
+	public static function user_delete($d = []) {
+		$user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
+		$offset = isset($d['offset']) ? preg_replace('~\D+~', '', $d['offset']) : 0;
+		if ($user_id) {
+			DB::query("DELETE FROM users WHERE user_id='".$user_id."' LIMIT 1;") or die(DB::error());
+		}
+		// output
+		return self::users_fetch(['offset' => $offset]);
+	}
+
 }
