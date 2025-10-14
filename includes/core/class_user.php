@@ -56,7 +56,7 @@ class User {
 		$items = [];
 		// where
 		$where = [];
-//		if ($search) $where[] = "number LIKE '%".$search."%'";
+		if ($search) $where[] = "phone LIKE '%".$search."%' or first_name LIKE '%".$search."%' or email LIKE '%".$search."%' or last_name LIKE '%".$search."%'";
 		$where = $where ? "WHERE ".implode(" AND ", $where) : "";
 		// info
 		$q = DB::query("SELECT user_id, plot_id, first_name, last_name, phone, email, last_login
@@ -80,6 +80,12 @@ class User {
 		paginator($count, $offset, $limit, $url, $paginator);
 		// output
 		return ['items' => $items, 'paginator' => $paginator];
+	}
+
+	public static function users_fetch($d = []) {
+		$info = self::users_list($d);
+		HTML::assign('users', $info['items']);
+		return ['html' => HTML::fetch('./partials/users_table.html'), 'paginator' => $info['paginator']];
 	}
 
 }
