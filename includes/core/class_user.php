@@ -27,6 +27,33 @@ class User {
         }
     }
 
+	public static function user_edit_info($user_id) {
+		$user_id = isset($user_id) && is_numeric($user_id) ? $user_id : 0;
+		if (!$user_id) {
+			return [
+				'user_id' => 0,
+				'first_name' => '',
+				'last_name' => '',
+				'phone' => '',
+				'email' => '',
+				'plots' => '',
+			];
+		}
+		$q = DB::query("SELECT user_id, first_name, last_name, phone, email, plot_id FROM users WHERE user_id='".$user_id."' LIMIT 1;") or die(DB::error());
+		if ($row = DB::fetch_row($q)) {
+			return [
+				'user_id' => (int) $row['user_id'],
+				'first_name' => $row['first_name'],
+				'last_name' => $row['last_name'],
+				'phone' => $row['phone'],
+				'email' => $row['email'],
+				'plots' => $row['plot_id'],
+			];
+		} else {
+			return []; //TODO: User not found ?
+		}
+	}
+
     public static function users_list_plots($number) {
         // vars
         $items = [];
@@ -63,7 +90,7 @@ class User {
             FROM users ".$where." ORDER BY user_id LIMIT ".$offset.", ".$limit.";") or die (DB::error());
 		while ($row = DB::fetch_row($q)) {
 			$items[] = [
-				'id' => (int) $row['user_id'],
+				'user_id' => (int) $row['user_id'],
 				'plot_id' => $row['plot_id'],
 				'first_name' => $row['first_name'],
 				'last_name' => $row['last_name'],
@@ -86,6 +113,61 @@ class User {
 		$info = self::users_list($d);
 		HTML::assign('users', $info['items']);
 		return ['html' => HTML::fetch('./partials/users_table.html'), 'paginator' => $info['paginator']];
+	}
+
+	// ACTIONS
+
+	public static function user_edit_window($d = []) {
+		$user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
+		HTML::assign('user', self::user_edit_info($user_id));
+		return ['html' => HTML::fetch('./partials/user_edit.html')];
+	}
+
+	public static function user_edit_update($d = []) {
+		$user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
+		$first_name = isset($d['first_name']) && trim($d['first_name']) ? trim($d['first_name']) : '';
+		$last_name = isset($d['last_name']) && trim($d['last_name']) ? trim($d['last_name']) : '';
+		$email = isset($d['email']) && trim($d['email']) ? trim($d['email']) : '';
+		$phone = isset($d['phone']) ? preg_replace('~\D+~', '', $d['phone']) : 0;
+		$plots = isset($d['plots']) && trim($d['plots']) ? trim($d['plots']) : '';
+		$offset = isset($d['offset']) ? preg_replace('~\D+~', '', $d['offset']) : 0;
+
+		// check required fields
+		if (!$first_name || !$last_name || !$email || !$phone) {
+			return ['html'=>'<div class="error">ERROR: Please fill all required fields!</div>']; // TODO: Типа ошибка
+		}
+
+		// update
+		if ($user_id) {
+			$set = [];
+			$set[] = "first_name='".$first_name."'";
+			$set[] = "last_name='".$last_name."'";
+			$set[] = "email='".$email."'";
+			$set[] = "phone='".$phone."'";
+			$set[] = "plot_id='".$plots."'";
+			$set[] = "updated='".Session::$ts."'";
+			$set = implode(", ", $set);
+			DB::query("UPDATE users SET ".$set." WHERE user_id='".$user_id."' LIMIT 1;") or die (DB::error());
+		} else {
+			DB::query("INSERT INTO users (
+                first_name,
+                last_name,
+                email,
+                phone,
+                plot_id,
+                updated
+            ) VALUES (
+                '".$first_name."',
+                '".$last_name."',
+                '".$email."',
+                '".$phone."',
+                '".$plots."',
+                '".Session::$ts."'
+            );") or die (DB::error());
+		}
+
+		// output
+		return self::users_fetch(['offset' => $offset]);
 	}
 
 }
