@@ -127,7 +127,7 @@ class User {
 		$user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
 		$first_name = isset($d['first_name']) && trim($d['first_name']) ? trim($d['first_name']) : '';
 		$last_name = isset($d['last_name']) && trim($d['last_name']) ? trim($d['last_name']) : '';
-		$email = isset($d['email']) && trim($d['email']) ? strtolower(trim($d['email'])) : '';
+		$email = isset($d['email']) && filter_var($d['email'], FILTER_VALIDATE_EMAIL) ? strtolower(filter_var($d['email'], FILTER_VALIDATE_EMAIL)) : '';
 		$phone = isset($d['phone']) ? preg_replace('~\D+~', '', $d['phone']) : 0;
 		$plots = isset($d['plots']) && trim($d['plots']) ? trim($d['plots']) : '';
 		$offset = isset($d['offset']) ? preg_replace('~\D+~', '', $d['offset']) : 0;
